@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 def f_inhold():
     # extract
-    df = pd.read_html(etl_settings.inshold,header=[0])[0]
+    df = pd.read_html(etl_settings.inhold,header=[0])[0]
     # validate input - first we expect certain column names in this order here.
     validation_list = ['Industry  Name', 'Number of Firms', 'CEO Holding','Institutional Holdings', 'Insider Holdings']
     if sum(df.columns == validation_list)==len(validation_list):
