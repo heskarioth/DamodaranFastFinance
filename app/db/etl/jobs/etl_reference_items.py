@@ -17,7 +17,7 @@ def f_ref_industry_names():
 def f_ref_bond():
     
     #getting bond rates from first datasource
-    url = 'https://tradingeconomics.com/bonds'
+    url = 'http://tradingeconomics.com/bonds'
     bonds_tradingeconomics = pd.read_html(url)[0][['Major10Y', 'Yield']]
     bonds_tradingeconomics.columns = ['Country','Yield']
     bonds_tradingeconomics['Country'] = bonds_tradingeconomics['Country'].str.replace('\W','',regex=True).str.lower()
