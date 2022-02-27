@@ -26,7 +26,7 @@ feeds_reference = {
     ,'histgr' : {'function':gre.f_histgr(),'table':models.table_histgr,'datefeed_url':etl_settings.histgr}
     ,'roe' : {'function':gre.f_roe(),'table':models.table_roe,'datefeed_url':etl_settings.roe}
     ,'fundgr' : {'function':gre.f_fundgr(),'table':models.table_fundgr,'datefeed_url':etl_settings.fundgr}
-    ,'inhold' : {'function':cg.f_inhold(),'table':models.table_inhold,'datefeed_url':etl_settings.inshold}
+    ,'inhold' : {'function':cg.f_inhold(),'table':models.table_inhold,'datefeed_url':etl_settings.inhold}
     ,'wcdata' : {'function':cfe.f_wcdata(),'table':models.table_wcdata,'datefeed_url':etl_settings.wcdata}
     ,'finflows' : {'function':cfe.f_finflows(),'table':models.table_finflows,'datefeed_url':etl_settings.finflows}
     ,'histimpl' : {'function':dr.f_histimpl(),'table':models.table_histimpl,'datefeed_url':etl_settings.histimpl}

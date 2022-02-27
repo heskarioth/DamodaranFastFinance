@@ -5,7 +5,7 @@ import os, sys
 from pydantic import BaseSettings
 from typing import List
 class etlSettings(BaseSettings):
-    inshold : str #= 'https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/inshold.html'
+    inhold : str #= 'https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/inshold.html'
     histretSP : str
     histimpl : str
     wcdata : str
