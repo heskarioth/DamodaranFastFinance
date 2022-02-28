@@ -12,6 +12,42 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 
+# on heroku, if I call PG for bottom_up_beta individual firm. I get duplicated  responses.
+# 2022-02-27T23:19:09.807129+00:00 app[web.1]: inhold
+# 2022-02-27T23:19:09.826004+00:00 app[web.1]: wcdata
+# 2022-02-27T23:19:09.850650+00:00 app[web.1]: finflows
+# 2022-02-27T23:19:09.883169+00:00 app[web.1]: histimpl
+# 2022-02-27T23:19:09.915507+00:00 app[web.1]: margin
+# 2022-02-27T23:19:09.934934+00:00 app[web.1]: goodwill
+# 2022-02-27T23:19:09.963526+00:00 app[web.1]: r_d
+# 2022-02-27T23:19:09.993914+00:00 app[web.1]: capex
+# 2022-02-27T23:19:10.016051+00:00 app[web.1]: divfcfe
+# 2022-02-27T23:19:10.030702+00:00 app[web.1]: macro
+# 2022-02-27T23:19:10.053110+00:00 app[web.1]: dbtfund
+# 2022-02-27T23:19:10.073614+00:00 app[web.1]: debtdetails
+# 2022-02-27T23:19:10.102485+00:00 app[web.1]: leaseeffect
+# 2022-02-27T23:19:10.124543+00:00 app[web.1]: dbtfund
+# 2022-02-27T23:19:10.137445+00:00 app[web.1]: wacc
+# 2022-02-27T23:19:10.156995+00:00 app[web.1]: debtdetails
+# 2022-02-27T23:19:10.157941+00:00 app[web.1]: totalbeta
+# 2022-02-27T23:19:10.195422+00:00 app[web.1]: ctryprem
+# 2022-02-27T23:19:10.197394+00:00 app[web.1]: leaseeffect
+# 2022-02-27T23:19:10.222375+00:00 app[web.1]: betas
+# 2022-02-27T23:19:10.227521+00:00 app[web.1]: wacc
+# 2022-02-27T23:19:10.245605+00:00 app[web.1]: countrytaxrates
+# 2022-02-27T23:19:10.246663+00:00 app[web.1]: totalbeta
+# 2022-02-27T23:19:10.270897+00:00 app[web.1]: taxrate
+# 2022-02-27T23:19:10.274343+00:00 app[web.1]: ctryprem
+# 2022-02-27T23:19:10.304878+00:00 app[web.1]: histretSP
+# 2022-02-27T23:19:10.305537+00:00 app[web.1]: betas
+# 2022-02-27T23:19:10.331883+00:00 app[web.1]: countrytaxrates
+# 2022-02-27T23:19:10.357336+00:00 app[web.1]: taxrate
+# 2022-02-27T23:19:10.387063+00:00 app[web.1]: histretSP
+# 2022-02-27T23:19:15.663881+00:00 app[web.1]: ref_industry_names
+# 2022-02-27T23:19:15.700997+00:00 app[web.1]: ref_bonds
+# 2022-02-27T23:19:16.072643+00:00 app[web.1]: ref_industry_names
+# 2022-02-27T23:19:16.121705+00:00 app[web.1]: ref_bonds
+
 router = APIRouter(
     prefix = "/summary"
     ,tags = ["Quick Enpoints"]

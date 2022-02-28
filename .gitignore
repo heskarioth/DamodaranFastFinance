@@ -3,3 +3,5 @@ __pycache__
 damo/
 test.py
 ideas.py
+docker-compose.yml
+docker-compose-prod.yml
