@@ -1,21 +1,54 @@
+import functools
 import pandas as pd
 from ....config import etl_settings
 import numpy as np
 import pandas as pd
 from datetime import datetime
 import numpy as np
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import List
+from pandas import DataFrame
 
+def f_ref_industry_names(data):
 
-def f_ref_industry_names():
-    df = pd.read_excel(etl_settings.ref_industry_names)
+    batch_size = 2000
+    urls : List = [f'ref_industry_name/industry_data_{start}.csv' for start in range(0,47606,batch_size)]
+    df_lists : List = [pd.read_csv(url) for url in urls]
+    df = pd.concat(df_lists)
+
     df.dropna(subset=['Exchange:Ticker'],inplace=True)
     df['ticker'] = df['Exchange:Ticker'].str.split(':').str[1].str.upper()
     df['created_at'] = datetime.now()
     df.columns = ['company_name', 'exchange_ticker', 'industry_group', 'primary_sector','sic_code', 'country', 'broad_group', 'sub_group','ticker','created_at']
     return df
 
-def f_ref_bond():
-    
+
+def f_ref_industry_names_bk(data):
+    """Online function to get the data."""
+    def send_request(url: str) -> DataFrame:
+        return pd.read_html(url)[0]
+
+    async def f_ref_industry_names_async() -> DataFrame:
+        batch_size = 2000
+        loop = asyncio.get_running_loop()
+        urls : List = [f'https://github.com/heskarioth/DamodaranFastFinance/blob/master/ref_industry_name/industry_data_{start}.csv' for start in range(0,47606,batch_size)]
+        with ThreadPoolExecutor() as pool:
+            tasks = [loop.run_in_executor(pool,functools.partial(send_request,url)) for url in urls]
+            df_lists = []
+            for finished_task in asyncio.as_completed(tasks):
+                df_lists.append(await finished_task)
+            
+        return pd.concat(df_lists)
+
+    df = asyncio.run(f_ref_industry_names_async())
+    df.dropna(subset=['Exchange:Ticker'],inplace=True)
+    df['ticker'] = df['Exchange:Ticker'].str.split(':').str[1].str.upper()
+    df['created_at'] = datetime.now()
+    df.columns = ['company_name', 'exchange_ticker', 'industry_group', 'primary_sector','sic_code', 'country', 'broad_group', 'sub_group','ticker','created_at']
+    return df
+
+def f_ref_bond(data):
     #getting bond rates from first datasource
     url = 'http://tradingeconomics.com/bonds'
     bonds_tradingeconomics = pd.read_html(url)[0][['Major10Y', 'Yield']]

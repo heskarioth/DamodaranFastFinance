@@ -33,8 +33,9 @@ def dollar_adjuster_minus_blank(x):
     return np.float64(x.replace(',','').replace('$','').replace('-','0'))
 
 
-def f_histimpl():
-    df = pd.read_html(etl_settings.histimpl,header=0)[0]
+def f_histimpl(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.histimpl,header=0)[0]
     validation_list = ['Year', 'Earnings Yield', 'Dividend Yield', 'S&P 500', 'Earnings*','Dividends*', 'Dividends + Buybacks', 'Change in Earnings','Change in Dividends', 'T.Bill Rate', 'T.Bond Rate', 'Bond-Bill','Smoothed Growth', 'Implied Premium (DDM)', 'Analyst Growth Estimate','Implied ERP (FCFE)', 'Implied Premium (FCFE with sustainable Payout)','ERP/Riskfree Rate']
     if sum(df.columns == validation_list)==len(validation_list):
         _ = ['Earnings Yield', 'Dividend Yield','Change in Earnings','Change in Dividends','T.Bill Rate','T.Bond Rate','Smoothed Growth','Implied Premium (DDM)','Analyst Growth Estimate','Implied ERP (FCFE)','Implied Premium (FCFE with sustainable Payout)','Bond-Bill']
@@ -52,8 +53,9 @@ def f_histimpl():
         return 'Error'
 
 
-def f_wacc():
-    df = pd.read_html(etl_settings.wacc,header=0)[0]
+def f_wacc(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.wacc,header=0)[0]
     validation_list = ['Industry  Name', 'Number of Firms', 'Beta', 'Cost of Equity','E/(D+E)', 'Std Dev in Stock', 'Cost of Debt', 'Tax Rate','After-tax Cost of Debt', 'D/(D+E)', 'Cost of Capital']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Cost of Equity','E/(D+E)', 'Std Dev in Stock', 'Cost of Debt', 'Tax Rate','After-tax Cost of Debt', 'D/(D+E)', 'Cost of Capital']:
@@ -69,8 +71,9 @@ def f_wacc():
     else:
         return 'Error'
 
-def f_totalbeta():
-    df = pd.read_html(etl_settings.totalbeta,header=0)[0]
+def f_totalbeta(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.totalbeta,header=0)[0]
     validation_list = ['Industry Name', 'Number of firms', 'Average Unlevered Beta','Average Levered Beta', 'Average correlation with the market','Total Unlevered Beta', 'Total Levered Beta']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Average correlation with the market']:
@@ -82,8 +85,9 @@ def f_totalbeta():
     else:
         return 'Error'
 
-def f_ctryprem():
-    df = pd.read_html(etl_settings.ctryprem,header=0)[0]
+def f_ctryprem(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.ctryprem,header=0)[0]
     validation_list = ['Country', 'Moody\'s rating', 'Adj. Default  Spread','Country Risk  Premium', 'Equity Risk  Premium','Country Risk  Premium.1']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Adj. Default  Spread','Country Risk  Premium', 'Equity Risk  Premium','Country Risk  Premium.1']:
@@ -96,8 +100,9 @@ def f_ctryprem():
     else:
         return 'Error'
 
-def f_betas():
-    df = pd.read_html(etl_settings.betas,header=0)[0]
+def f_betas(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.betas,header=0)[0]
     validation_list = ['Industry Name', 'Number of firms', 'Beta', 'D/E Ratio','Effective Tax rate', 'Unlevered beta', 'Cash/Firm value','Unlevered beta corrected for cash', 'HiLo Risk','Standard deviation of equity','Standard deviation in operating income (last 10  years)', '2018','2019', '2020', '2021', 'Average (2017-22)']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['D/E Ratio','Effective Tax rate', 'Cash/Firm value','Standard deviation of equity','Standard deviation in operating income (last 10  years)']:
@@ -110,8 +115,9 @@ def f_betas():
     else:
         return 'Error'
 
-def f_countrytaxrates():
-    df = pd.read_html(etl_settings.countrytaxrates,header=0)[0]
+def f_countrytaxrates(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.countrytaxrates,header=0)[0]
     validation_list = ['Country', '2016', '2017', '2018', '2019', '2020', '2021']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['2016', '2017', '2018', '2019', '2020', '2021']:
@@ -129,8 +135,9 @@ def f_countrytaxrates():
 
 
 
-def f_taxrate():
-    df = pd.read_html(etl_settings.taxrate,header=1)[0]
+def f_taxrate(data):
+    df = pd.read_html(data,header=1)[0]
+    #df = pd.read_html(etl_settings.taxrate,header=1)[0]
     validation_list = ['Industry  name', 'Number of firms', 'Total Taxable Income','Total Taxes Paid (Accrual)', 'Total Cash Taxes Paid','Cash Taxes/Accrual Taxes', 'Average across all companies','Average across only  money-making companies', 'Aggregate tax rate','Average across only  money-making companies2', 'Aggregate tax rate3']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Cash Taxes/Accrual Taxes', 'Average across all companies','Average across only  money-making companies', 'Aggregate tax rate','Average across only  money-making companies2', 'Aggregate tax rate3']:
@@ -144,8 +151,9 @@ def f_taxrate():
     else:
         return 'Error'
 
-def f_histretSP():
-    df = pd.read_html(etl_settings.histretSP,header=1)[0]
+def f_histretSP(data):
+    df = pd.read_html(data,header=1)[0]
+    #df = pd.read_html(etl_settings.histretSP,header=1)[0]
     validation_list = ['Year', 'S&P 500 (includes dividends)', '3-month T.Bill', 'US T. Bond','Baa  Corporate Bond', 'Real Estate', 'S&P 500 (includes dividends)3','3-month T.Bill4', 'US T. Bond5', 'Baa  Corporate Bond6','Real Estate2', 'Stocks  - Bills', 'Stocks  - Bonds','Stocks  - Baa Corp Bond', 'Historical  risk premium','Inflation  Rate', 'S&P  500 (includes dividends)2','3-month  T. Bill (Real)', '!0-year  T.Bonds', 'Baa  Corp Bonds','Real  Estate3']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['S&P 500 (includes dividends)', '3-month T.Bill', 'US T. Bond', 'Real Estate','Stocks  - Bills', 'Stocks  - Bonds','Stocks  - Baa Corp Bond','Historical  risk premium','Inflation  Rate','S&P  500 (includes dividends)2','3-month  T. Bill (Real)', '!0-year  T.Bonds', 'Baa  Corp Bonds','Real  Estate3','Baa  Corporate Bond']:
@@ -155,6 +163,26 @@ def f_histretSP():
         df.fillna(0,inplace=True)
         df['created_at'] = datetime.now()
         df.columns = ['year','annual_roi_in_sp_500_includes_dividend_percentage','annual_roi_in_3_month_t_bill_percentage','annual_roi_in_us_t_bond_percentage','annual_roi_in_baa_corporate_bond_percentage','annual_roi_in_real_estate_percentage','value_of_100_usd_invested_in_1928_sp_500_includes_dividends_usd','value_of_100_usd_invested_in_1928_sp_3_moth_t_bill_4_usd','value_of_100_usd_invested_in_1928_sp_us_t_bond_usd','value_of_100_usd_invested_in_1928_sp_baa_corporate_bond_usd','annual_risk_premium_real_estate_usd','annual_risk_premium_stocks_minus_bills_percentage','annual_risk_premium_stocks_minus_bonds_percentage','annual_risk_premium_stocks_minus_baa_corporate_bond_percentage','annual_risk_premium_historical_risk_premium_percentage','inflation_rate_percentage','annual_real_returns_on_sp_500_includes_dividend_percentage','annual_real_returns_on_three_month_t_bill_real_percentage','annual_real_returns_on_zero_year_t_bonds_percentage','annual_real_returns_on_baa_corporate_bonds_percentage','annual_real_returns_on_real_estate_percentage','created_at']
+        return df
+    else:
+        return 'Error'
+
+
+
+def f_mktcaprisk(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.histretSP,header=1)[0]
+    validation_list = ['Market Cap in millions of US$', 'Count of Market Cap (in US $)','Aggregate Market Cap', 'Cash/Firm  Value','Annual  trading volume/Shrs outstanding','Market  Debt to capital ratio (median)', 'Median  Beta','Correlation  with market (median)','Standard deviation in stock price (median)', 'Total  Beta','HiL0 Risk Measure (Hi- lo)/  (Hi+Lo) (median)']
+    if sum(df.columns==validation_list)==len(validation_list):
+        for col in ['Cash/Firm  Value','Market  Debt to capital ratio (median)','Standard deviation in stock price (median)']:
+            df[col] = df[col].apply(percentage_remover_with_div_0)
+        for col in ['Aggregate Market Cap']:
+            df[col] = df[col].apply(dollar_adjuster_minus_head)
+        df.fillna(0,inplace=True)
+        df['created_at'] = datetime.now()
+        df.columns = ['markcap_in_mil_usd', 'count_markcap_in_usd','aggregate_markcap_in_usd', 'cash_to_firm_value_as_pct','annual_trading_volume_to_shrs_oustanding_ratio','markdebt_to_capital_ratio_median_as_pct', 'median_beta','correlation_with_markmedian','std_in_stock_price_median_as_pct', 'total_beta','hil0_risk_measure_to_hi_plus_lo_median_ratio','created_at']
+    
+        
         return df
     else:
         return 'Error'

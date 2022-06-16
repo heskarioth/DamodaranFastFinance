@@ -30,10 +30,7 @@ def verify_access_token(token: str, credentials_exceptions):
 
     try:
         payload = jwt.decode(token,SECRET_KEY, algorithms=[ALGORITHM])
-
         email : str = payload.get("sub")
-        print(payload)
-        print(email)
         if email is None:
             raise credentials_exceptions
 

@@ -30,8 +30,9 @@ def dollar_adjuster_minus_blank(x):
 
 
 
-def f_divfcfe():
-    df = pd.read_html(etl_settings.divfcfe,header=0)[0]
+def f_divfcfe(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.divfcfe,header=0)[0]
     validation_list = ['Industry  name', 'Number of firms', 'Dividends', 'Net Income','Payout', 'Dividends + Buybacks', 'Cash Return as % of Net  Income','Dividends + Buybacks - Stock  Issuances','FCFE (before debt cash  flows)', 'FCFE (after debt cash flows)','Net Cash Returned/FCFE  (pre-debt)','Net Cash Returned/FCFE  (post-debt)', 'Net Cash Returned/ Net  Income','Cash/ Firm Value']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Payout','Net Cash Returned/ Net  Income','Cash/ Firm Value','Cash Return as % of Net  Income','Net Cash Returned/FCFE  (pre-debt)','Net Cash Returned/FCFE  (post-debt)']:

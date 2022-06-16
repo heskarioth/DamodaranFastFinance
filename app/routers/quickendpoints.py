@@ -11,7 +11,7 @@ from . import docs
 import pandas as pd
 import numpy as np
 import yfinance as yf
-
+import re
 # on heroku, if I call PG for bottom_up_beta individual firm. I get duplicated  responses.
 # 2022-02-27T23:19:09.807129+00:00 app[web.1]: inhold
 # 2022-02-27T23:19:09.826004+00:00 app[web.1]: wcdata
@@ -122,42 +122,100 @@ async def get_bottom_up_beta_firm(firm_ticker: list[str] | None = Query(None), d
 
 
 
-
 @router.get("/risk_premiums/",summary="Find risk premium for the country your firm operates in")
 async def get_risk_premium(country_name : Optional[str] = "",db:Session = Depends(get_db)):
 
     if country_name.isdigit():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Expecting string value.')
 
-    risk_premium = db.query(
+    risk_query = db.query(
         models.table_ctryprem.country,
+        models.table_ctryprem.moodys_rating,
         models.table_ctryprem.country_risk_premium,
         models.table_ctryprem.equity_risk_premium,
         models.table_ctryprem.adj_default_spread,
-        ).filter(func.lower(models.table_ctryprem.country).contains(func.lower(country_name))).all()
+        )#.all()
+    risk_premium_filter = risk_query.filter(func.lower(models.table_ctryprem.country).contains(func.lower(country_name))).all()
     
-    if not risk_premium:
+    if not risk_premium_filter:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     
-    bond = db.query(
-        models.table_ref_bonds.country,
-        models.table_ref_bonds.yield_converted
-        ).filter(func.lower(models.table_ref_bonds.country).contains(func.lower(country_name.strip()))).all()
+    chosen_countries_l = [country[0].replace(' ','').lower() for country in risk_premium_filter]
 
-    bond_dict = dict(bond)
-    risk_dict = {x[0]:x[1:] for x in risk_premium}
+    risk_premium = pd.DataFrame(risk_query.all())
+    risk_premium['Country'] = risk_premium['country'].str.lower().str.replace(' ','')
+    
+    bond_query = db.query(models.table_ref_bonds.country.label('Country'),models.table_ref_bonds.yield_converted)
+    bond = pd.DataFrame(bond_query.all())
+
+    df_risk_free_all = pd.merge(risk_premium,bond,on='Country',how='left')
+    df_risk_free_all['free-rate'] = df_risk_free_all['yield_converted'] - df_risk_free_all['adj_default_spread']
+    df_risk_free_group_ratings = df_risk_free_all.groupby(['moodys_rating'])['free-rate'].mean().to_dict()  #.reset_index()
+    df_risk_free_group_yield = df_risk_free_all.groupby(['moodys_rating'])['free-rate'].mean().to_dict()  #.reset_index()
+    df_risk_free = df_risk_free_all[df_risk_free_all['Country'].isin(chosen_countries_l)]
+
     calculated_data = []
-    for key in risk_dict:
-        country_name_lowercase = (key.strip().lower().replace(' ',''))
-        try:
-            yield_converted = bond_dict[country_name_lowercase]
-        except KeyError as k:
-            yield_converted = 0
-            print('It failed bacause we dont have a bond rate for that country.')
-            print('This needs to be fixed in future versions.')
+    for country in chosen_countries_l:
+        #mask = df_risk_free[df_risk_free['Country']==country].any()
+        #print(mask)
+        rating = df_risk_free[df_risk_free['Country']==country]['moodys_rating'].values[0]
+        yield_converted = df_risk_free[df_risk_free['Country']==country]['yield_converted'].values[0]
+        risk_free = df_risk_free[df_risk_free['Country']==country]['free-rate'].values[0]
+        #print(yield_converted,risk_free,rating)
+        if  np.isnan(risk_free):
+            risk_free = df_risk_free_group_ratings[rating]
+            yield_converted = df_risk_free_group_yield[rating]
+            
+        calculated_data.append({'country':country,'bond_yield':yield_converted,'risk_free_rate':risk_free})
 
-        risk_free = np.abs(yield_converted - risk_dict[key][2])
-        calculated_data.append({'country':key,'bond_yield':yield_converted,'risk_free_rate':risk_free})
     
 
-    return {"original_data":risk_premium,"calculated_data":calculated_data}
+    return {"original_data":risk_premium_filter,"calculated_data":calculated_data}
+    
+
+# @router.get("/risk_premiums/",summary="Find risk premium for the country your firm operates in")
+# async def get_risk_premium(country_name : Optional[str] = "",db:Session = Depends(get_db)):
+
+#     if country_name.isdigit():
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Expecting string value.')
+
+#     risk_premium = db.query(
+#         models.table_ctryprem.country,
+#         models.table_ctryprem.moodys_rating,
+#         models.table_ctryprem.country_risk_premium,
+#         models.table_ctryprem.equity_risk_premium,
+#         models.table_ctryprem.adj_default_spread,
+#         ).filter(func.lower(models.table_ctryprem.country).contains(func.lower(country_name))).all()
+    
+#     if not risk_premium:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    
+#     bond = db.query(
+#         models.table_ref_bonds.country,
+#         models.table_ref_bonds.yield_converted
+#         ).filter(func.lower(models.table_ref_bonds.country).contains(func.lower(country_name.strip()))).all()
+
+#     bond_dict = dict(bond)
+#     risk_dict = {x[0]:x[1:] for x in risk_premium}
+#     calculated_data = []
+#     for key in risk_dict:
+#         country_name_lowercase = (key.strip().lower().replace(' ',''))
+#         try:
+#             yield_converted = bond_dict[country_name_lowercase]
+#         except KeyError as k:
+#             yield_converted = 0
+#             country_rating = (risk_dict[key][1])
+#             #print(pd.DataFrame(risk_premium))
+#             bond = db.query(
+#                     models.table_ref_bonds.country,
+#                     func.mean(models.table_ref_bonds.yield_converted),
+#                         ).groupby()
+#             #print(pd.read_sql((risk_premium)))
+#             print('It failed bacause we dont have a bond rate for that country.')
+#             print('This needs to be fixed in future versions.')
+
+#         risk_free = np.abs(yield_converted - risk_dict[key][3])
+#         calculated_data.append({'country':key,'bond_yield':yield_converted,'risk_free_rate':risk_free})
+    
+
+#     return {"original_data":risk_premium,"calculated_data":calculated_data}

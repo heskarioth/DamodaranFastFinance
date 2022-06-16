@@ -21,6 +21,7 @@ router = APIRouter(
 async def get_betas(db: Session = Depends(get_db),current_user : int = Depends(oauth2.get_current_user)):
     posts = db.query(models.table_betas).all()
     return posts
+    
 @router.get("/betas/sector_betas_private",summary="Total Betas by Sector (for computing private company costs of equity)")
 async def get_totalbeta(db: Session = Depends(get_db)):
     """

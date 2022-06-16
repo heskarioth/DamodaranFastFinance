@@ -1,5 +1,10 @@
 from app import schemas
-from .database import client,session
+from jose import jwt
+#from .database import client,session
+import pytest
+from app.config import other_settings
+
+
 
 
 def test_create_user(client,session):
@@ -10,7 +15,37 @@ def test_create_user(client,session):
     assert new_user.email == "testing@gmail.com"
     assert res.status_code == 201
 
+
+def test_login_user(client,test_user):
+    res = client.post("/login",data={"username":test_user['email'],"password":test_user['password']})
+    assert res.status_code == 200
+    login_res = schemas.Token(**res.json())
+
+    payload = jwt.decode(login_res.access_token,other_settings.secret_key, algorithms=[other_settings.algorithm])
+    email : str = payload.get("sub")
+    assert login_res.token_type == "bearer"
+    assert email==test_user['email']
 # pytest .\tests\test_users.py -s -v
+
+
+@pytest.mark.parametrize("email,password,status_code",[
+    ("test@gmail.com","1234",403),
+    ("testing@gmail.com","wrong",403),
+    (None,"1234",422),
+    ("testing@gmail.com",None,422)
+])
+def test_incorrect_login(test_user,client,email,password,status_code):
+    res = client.post("/login",data={"username":email,"password":password})
+    assert  res.status_code == status_code
+
+
+
+
+
+
+
+
+
 
 
 

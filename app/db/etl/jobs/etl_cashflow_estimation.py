@@ -6,8 +6,9 @@ from datetime import datetime
 import re 
 
 
-def f_wcdata():
-    df = pd.read_html(etl_settings.wcdata,header=0)[0]
+def f_wcdata(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.wcdata,header=0)[0]
     validation_list = ['Industry Name', 'Number of firms', 'Acc  Rec/ Sales','Inventory/Sales', 'Acc  Pay/ Sales', 'Non-cash  WC/ Sales']
     if sum(df.columns == validation_list)==len(validation_list):
         for col in ['Acc  Rec/ Sales','Inventory/Sales', 'Acc  Pay/ Sales', 'Non-cash  WC/ Sales']:
@@ -23,7 +24,7 @@ def f_wcdata():
 
 
 
-def f_finflows():
+def f_finflows(data):
 
     def foo(x):
         is_negative = False if re.search('\(([^)]+)\)',x) == None else True
@@ -32,8 +33,8 @@ def f_finflows():
             return -1 * np.float64(x)
         else:
             return np.float64(x)
-
-    df = pd.read_html(etl_settings.finflows,header=0)[0]
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.finflows,header=0)[0]
     validation_list = ['Industry Name', 'Number  of Firms', 'Dividends  in $ millions','Buybacks  in $ millions', 'Equity Issuance in $  millions','Net Equity  Change in $ millions','Net  Equity Change as % of Book Equity', 'Debt  Repaid in $ millions','Debt  Raised in $ millions', 'Net  Debt Change in $ millions','Net  Change in Debt as % of Total Debt','Change  in Lease Debt in $ millions']
     if sum(df.columns==validation_list)==len(validation_list):
         _  = ['Dividends  in $ millions','Buybacks  in $ millions','Debt  Repaid in $ millions','Equity Issuance in $  millions']
@@ -53,8 +54,9 @@ def f_finflows():
     else:
         return 'Error'
 
-def f_margin(): 
-    df = pd.read_html(etl_settings.margin,header=0)[0]
+def f_margin(data): 
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.margin,header=0)[0]
     validation_list = ['Industry  Name', 'Number of firms', 'Gross Margin', 'Net Margin','Pre-tax, Pre-stock compensation  Operating Margin','Pre-tax Unadjusted Operating  Margin','After-tax Unadjusted Operating  Margin','Pre-tax Lease adjusted Margin', 'After-tax Lease Adjusted Margin','Pre-tax Lease & R&D adj  Margin', 'After-tax Lease & R&D  adj Margin','EBITDA/Sales', 'EBITDASG&A/Sales', 'EBITDAR&D/Sales', 'COGS/Sales','R&D/Sales', 'SG&A/ Sales', 'Stock-Based Compensation/Sales','Lease Expense/Sales']
     if sum(df.columns==validation_list)==len(validation_list):
         _ = ['Gross Margin', 'Net Margin','Pre-tax, Pre-stock compensation  Operating Margin','Pre-tax Unadjusted Operating  Margin','After-tax Unadjusted Operating  Margin','Pre-tax Lease adjusted Margin', 'After-tax Lease Adjusted Margin','Pre-tax Lease & R&D adj  Margin', 'After-tax Lease & R&D  adj Margin','EBITDA/Sales', 'EBITDASG&A/Sales', 'EBITDAR&D/Sales', 'COGS/Sales','R&D/Sales', 'SG&A/ Sales', 'Stock-Based Compensation/Sales','Lease Expense/Sales']
@@ -67,7 +69,7 @@ def f_margin():
     else:
         return 'Error'
 
-def f_goodwill():
+def f_goodwill(data):
 
     def foo(x):
             is_negative = False if re.search('\(([^)]+)\)',x) == None else True
@@ -77,7 +79,8 @@ def f_goodwill():
             else:
                 return np.float64(x)
     
-    df = pd.read_html(etl_settings.goodwill,header=0)[0]
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.goodwill,header=0)[0]
     
     validation_list = ['Industry Name', 'Number  of Firms', 'Goodwill  (in $ millions)','Change  in Goodwill in last year', 'Goodwill  as % of Total Assets','Impairment of Goodwill in LTM in $  millioins','Impairment as % of  Goodwill']
     if sum(df.columns==validation_list)==len(validation_list):
@@ -95,8 +98,9 @@ def f_goodwill():
         return 'Error'
 
 
-def f_r_d():
-    df = pd.read_html(etl_settings.r_d,header=0)[0]
+def f_r_d(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.r_d,header=0)[0]
     validation_list = ['Industry Name', 'Number of firms','R&D Capitalized (my estimate in $ millions)','Capitalized R&D as % of Invested Capital', 'R&D - LTM (in $ millions)','Current R&D as % of Revenue', 'R&D - 1 year ago (in $ millions)','R&D - 2 years ago (in $ millions)','R&D - 3 years ago (in $ millions)', 'R&D - 4 years ago','R&D - 5 years ago (in $ millions)', 'CAGR  in R&D - Last 5 years']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['R&D Capitalized (my estimate in $ millions)','Capitalized R&D as % of Invested Capital', 'R&D - LTM (in $ millions)','Current R&D as % of Revenue', 'R&D - 1 year ago (in $ millions)','R&D - 2 years ago (in $ millions)','R&D - 3 years ago (in $ millions)', 'R&D - 4 years ago','R&D - 5 years ago (in $ millions)', 'CAGR  in R&D - Last 5 years']:
@@ -111,8 +115,9 @@ def f_r_d():
     else:
         return 'Error'
 
-def f_capex():
-    df = pd.read_html(etl_settings.capex,header=0)[0]
+def f_capex(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.capex,header=0)[0]
     validation_list = ['Industry  Name', 'Number of Firms','Capital Expenditures (US $  millions)','Depreciation & Amort  ((US $ millions)', 'Cap Ex/Deprecn','Acquisitions (US $ millions)', 'Net R&D (US $ millions)','Net Cap Ex/Sales', 'Net Cap Ex/ EBIT (1-t)','Sales/ Invested Capital']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Cap Ex/Deprecn','Net Cap Ex/Sales', 'Net Cap Ex/ EBIT (1-t)']:

@@ -340,6 +340,24 @@ class table_histretSP(Base):
     annual_real_returns_on_real_estate_percentage = Column(Float,nullable=False)
     created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
 
+
+class table_mktcaprisk(Base):
+    __tablename__ = "mktcaprisk"
+    id = Column(Integer,primary_key=True,nullable=False)
+    markcap_in_mil_usd = Column(String,nullable=False)
+    count_markcap_in_usd = Column(Integer,nullable=False)
+    aggregate_markcap_in_usd = Column(Float,nullable=False)
+    cash_to_firm_value_as_pct = Column(Float,nullable=False)
+    annual_trading_volume_to_shrs_oustanding_ratio = Column(Float,nullable=False)
+    markdebt_to_capital_ratio_median_as_pct = Column(Float,nullable=False)
+    median_beta = Column(Float,nullable=False)
+    correlation_with_markmedian = Column(Float,nullable=False)
+    std_in_stock_price_median_as_pct = Column(Float,nullable=False)
+    total_beta = Column(Float,nullable=False)
+    hil0_risk_measure_to_hi_plus_lo_median_ratio = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
 class table_taxrate(Base):
     __tablename__ = "taxrate"
     id = Column(Integer,primary_key=True,nullable=False)
@@ -458,4 +476,207 @@ class table_wacc(Base):
     created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
 
 
-    
+########################################### Dollar Value Measures ##############################
+
+
+class table_dollarus(Base):
+    __tablename__ = "dollarus"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    markcap_in_mil_usd = Column(Float,nullable=False)
+    book_equity_in_mil_usd = Column(Float,nullable=False)
+    enteprise_value_in_mil_usd = Column(Float,nullable=False)
+    invested_capital_in_mil_usd = Column(Float,nullable=False)
+    total_debt_including_leases_in_mil_usd = Column(Float,nullable=False)
+    revenues_in_mil_usd = Column(Float,nullable=False)
+    ebitda_in_mil_usd = Column(Float,nullable=False)
+    ebit_op_income_in_mil_usd = Column(Float,nullable=False)
+    net_income_in_mil_usd = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+########################################### COVID Effects ##############################
+
+class table_covideffects(Base):
+    __tablename__ = "covideffects"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    markcap_12_31_19_usd = Column(Float,nullable=False)
+    markcap_2_14_20_usd = Column(Float,nullable=False)
+    markcap_3_20_20_usd = Column(Float,nullable=False)
+    markcap_9_1_20_usd = Column(Float,nullable=False)
+    markcap_12_31_21_usd = Column(Float,nullable=False)
+    pct_chg_1_1_20_to_2_14_20 = Column(Float,nullable=False)
+    pct_chg_2_14_20_to_3_20_20 = Column(Float,nullable=False)
+    pct_chg_3_20_20_to_9_1_20 = Column(Float,nullable=False)
+    pct_chg_9_1_20_to_12_31_21 = Column(Float,nullable=False)
+    revenues_ltm_2020 = Column(Float,nullable=False)
+    revenues_ltm_2021 = Column(Float,nullable=False)
+    revenues_pct_chg = Column(Float,nullable=False)
+    op_income_ltm_20202 = Column(Float,nullable=False)
+    op_income_ltm_20213 = Column(Float,nullable=False)
+    op_income_pct_chg = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+############################ Multiples#############################
+
+class table_vebitda(Base):
+    __tablename__ = "vebitda"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    positive_ebitda_firms_ev_to_ebitdar_d = Column(Float,nullable=False)
+    positive_ebitda_firms_ev_to_ebitda = Column(Float,nullable=False)
+    positive_ebitda_firms_ev_to_ebit = Column(Float,nullable=False)
+    positive_ebitda_firms_ev_to_ebit_1_minus_t = Column(Float,nullable=False)
+    all_firms_ev_to_ebitdar_d_2 = Column(Float,nullable=False)
+    all_firms_ev_to_ebitda3 = Column(Float,nullable=False)
+    all_firms_ev_to_ebit4 = Column(Float,nullable=False)
+    all_firms_ev_to_ebit_1_minus_t_5 = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+
+class table_pedata(Base):
+    __tablename__ = "pedata"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    current_pe = Column(Float,nullable=False)
+    trailing_pe = Column(Float,nullable=False)
+    forward_pe = Column(Float,nullable=False)
+    aggregate_markcap_to_net_income_ratio_all_firms = Column(Float,nullable=False)
+    aggregate_markcap_to_trailing_net_income_ratio_only_money_making_firms = Column(Float,nullable=False)
+    exp_eps_growth_5_years = Column(Float,nullable=False)
+    peg_ratio = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+class table_pbvdata(Base):
+    __tablename__ = "pbvdata"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    pbv = Column(Float,nullable=False)
+    roe_pct = Column(Float,nullable=False)
+    ev_to_invested_capital_ratio = Column(Float,nullable=False)
+    roic_pct = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+
+class table_psdata(Base):
+    __tablename__ = "psdata"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    price_sales_ratio = Column(Float,nullable=False)
+    net_margin_pct = Column(Float,nullable=False)
+    ev_sales_ratio = Column(Float,nullable=False)
+    pre_tax_operating_margin_pct = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+class table_mktcapmult(Base):
+    __tablename__ = "mktcapmult"
+    id = Column(Integer,primary_key=True,nullable=False)
+    markcap_decile = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    pe = Column(Float,nullable=False)
+    pbv = Column(Float,nullable=False)
+    price_to_sales_ratio = Column(Float,nullable=False)
+    ev_to_ebit_ratio = Column(Float,nullable=False)
+    ev_to_ebitda_ratio = Column(Float,nullable=False)
+    ev_to_sales_ratio = Column(Float,nullable=False)
+    ev_to_invested_capital_ratio = Column(Float,nullable=False)
+    roe_pct = Column(Float,nullable=False)
+    pre_tax_roic_pct = Column(Float,nullable=False)
+    net_margin_pct = Column(Float,nullable=False)
+    operating_margin_pct = Column(Float,nullable=False)
+    pct_companies_with_net_income_less_zero = Column(Float,nullable=False)
+    pct_companies_with_operating_income_less_zero = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+
+class table_countrystats(Base):
+    __tablename__ = "countrystats"
+    id = Column(Integer,primary_key=True,nullable=False)
+    country = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    sum_markcap_usd = Column(Float,nullable=False)
+    sum_total_debt_incl_leases_usd = Column(Float,nullable=False)
+    sum_firm_value_usd = Column(Float,nullable=False)
+    sum_usd = Column(Float,nullable=False)
+    sum_enterprise_value_usd = Column(Float,nullable=False)
+    median_current_pe = Column(Float,nullable=False)
+    median_trailing_pe = Column(Float,nullable=False)
+    median_forward_pe = Column(Float,nullable=False)
+    median_peg = Column(Float,nullable=False)
+    median_pbv = Column(Float,nullable=False)
+    median_ps = Column(Float,nullable=False)
+    median_cash_to_firm_value_pct = Column(Float,nullable=False)
+    median_ev_to_ebit = Column(Float,nullable=False)
+    median_ev_to_ebitda = Column(Float,nullable=False)
+    median_ev_to_invested_capital = Column(Float,nullable=False)
+    median_ev_to_sales = Column(Float,nullable=False)
+    median_payout_ratio_pct = Column(Float,nullable=False)
+    median_dividend_yield_pct = Column(Float,nullable=False)
+    median_hist_growth_net_income_last_5_years_pct = Column(Float,nullable=False)
+    median_hist_growth_revenues_last_5_years_pct = Column(Float,nullable=False)
+    median_exp_growth_rate_eps_next_5_years_pct = Column(Float,nullable=False)
+    median_exp_growth_revenues_next_2_years_pct = Column(Float,nullable=False)
+    median_return_on_equity_pct = Column(Float,nullable=False)
+    median_return_on_capital_pct = Column(Float,nullable=False)
+    median_net_profit_margin_pct = Column(Float,nullable=False)
+    median_pre_tax_operating_margin_pct = Column(Float,nullable=False)
+    median_effective_tax_rate_pct = Column(Float,nullable=False)
+    median_pct_held_by_institutions = Column(Float,nullable=False)
+    aggr_pe = Column(Float,nullable=False)
+    aggr_pbv = Column(Float,nullable=False)
+    aggr_ev_to_ebitda = Column(Float,nullable=False)
+    aggr_ev_to_invested_capital = Column(Float,nullable=False)
+    aggr_ev_to_sales = Column(Float,nullable=False)
+    agrr_roe_pct = Column(Float,nullable=False)
+    aggr_roc_pct = Column(Float,nullable=False)
+    aggr_net_margin_pct = Column(Float,nullable=False)
+    aggr_operating_margin_pct = Column(Float,nullable=False)
+    aggr_payout_ratio_pct = Column(Float,nullable=False)
+    aggr_dividend_yield = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+
+    ########################################### Option Pricing Models
+
+class table_optvar(Base):
+    __tablename__ = "optvar"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    std_dev_equity_pct = Column(Float,nullable=False)
+    std_dev_firm_value_pct = Column(Float,nullable=False)
+    equity_divided_by_debt_plus_equity_pct = Column(Float,nullable=False)
+    debt_divided_bt_debt_plus_equity_pct = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
+
+
+class table_eva(Base):
+    __tablename__ = "eva"
+    id = Column(Integer,primary_key=True,nullable=False)
+    industry_name = Column(String,nullable=False)
+    number_of_firms = Column(Integer,nullable=False)
+    beta = Column(Float,nullable=False)
+    roe_pct = Column(Float,nullable=False)
+    cost_of_equity_coe_pct = Column(Float,nullable=False)
+    roe_minus_coe_pct = Column(Float,nullable=False)
+    bv_of_equity_usd = Column(Float,nullable=False)
+    equity_eva_in_mil_usd = Column(Float,nullable=False)
+    roc_pct = Column(Float,nullable=False)
+    cost_of_capital_pct = Column(Float,nullable=False)
+    roc_minus_wacc_pct = Column(Float,nullable=False)
+    bv_of_capital_usd = Column(Float,nullable=False)
+    eva_in_mil_usd = Column(Float,nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))

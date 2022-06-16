@@ -31,8 +31,9 @@ def dollar_adjuster_minus_blank(x):
     return np.float64(x.replace(',','').replace('$','').replace('-','0'))
 
 
-def f_macro():
-    df = pd.read_html(etl_settings.macro,header=0)[0]
+def f_macro(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.macro,header=0)[0]
     validation_list = ['Date', 'T.Bond  Rate', 'Change  in rate', 'Real  GDP', '%  Chg in GDP','CPI', 'Change  in CPI', 'Weighted  Dollar', '%  Change in $']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['T.Bond  Rate', 'Change  in rate', 'Real  GDP', '%  Chg in GDP','CPI', 'Change  in CPI', '%  Change in $','Weighted  Dollar']:
@@ -45,8 +46,9 @@ def f_macro():
         return 'Error'
 
 
-def f_dbtfund():
-    df = pd.read_html(etl_settings.dbtfund,header=0)[0]
+def f_dbtfund(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.dbtfund,header=0)[0]
     validation_list = ['Industry  Name', 'Number of  firms', 'Book Debt  to Capital','Market  Debt to Capital (Unadjusted)', 'Market D/E  (unadjusted)','Market  Debt to Capital (adjusted for leases)','Market D/E  (adjusted for leases)', 'Effective  tax rate','Institutional  Holdings', 'Std dev in  Stock Prices', 'EBITDA/EV','Net PP&E/Total  Assets', 'Capital Spending/Total  Assets']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Number of  firms', 'Book Debt  to Capital','Market  Debt to Capital (Unadjusted)', 'Market D/E  (unadjusted)','Market  Debt to Capital (adjusted for leases)','Market D/E  (adjusted for leases)', 'Effective  tax rate','Institutional  Holdings', 'Std dev in  Stock Prices', 'EBITDA/EV','Net PP&E/Total  Assets', 'Capital Spending/Total  Assets']:
@@ -58,8 +60,9 @@ def f_dbtfund():
     else:
         return 'Error'
 
-def f_debtdetails():
-    df = pd.read_html(etl_settings.debtdetails,header=0)[0]
+def f_debtdetails(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.debtdetails,header=0)[0]
     validation_list = ['Industry Name', 'Number of firms', 'Lease Debt (My Estimate)','Conventional Debt', 'Total Debt with leases', 'Interest expense','Book interest rate', 'Short term Debt as % of Total Debt','Lease Debt (Accounting)']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Book interest rate', 'Short term Debt as % of Total Debt']:
@@ -75,8 +78,9 @@ def f_debtdetails():
     else:
         return 'Error'
 
-def f_leaseeffect():
-    df = pd.read_html(etl_settings.leaseeffect,header=0)[0]
+def f_leaseeffect(data):
+    df = pd.read_html(data,header=0)[0]
+    #df = pd.read_html(etl_settings.leaseeffect,header=0)[0]
     validation_list = ['Industry Name', 'Number of firms', 'Lease Expense/ Sales','Total Debt without leases', 'Total Debt with Leases','Lease Debt as % of Total Debt','Market Debt to Capital without leases','Market Debt to Capital with leases','Book Debt to Capital without leases','Book Debt to Capital with leases','Operating income (before lease adj)','Operating income (after lease adj)', 'ROIC (without leases)','ROIC (with leases)', 'Pre-tax Operating Margin (before lease adj)','Pre-tax Operating Margin (after lease adj)','Lease Debt (My Estimate)', 'Lease Debt (Accounting)']
     if sum(df.columns==validation_list)==len(validation_list):
         for col in ['Lease Expense/ Sales','Lease Debt as % of Total Debt','Market Debt to Capital without leases','Market Debt to Capital with leases','Book Debt to Capital without leases','Book Debt to Capital with leases','ROIC (without leases)','ROIC (with leases)', 'Pre-tax Operating Margin (before lease adj)','Pre-tax Operating Margin (after lease adj)']:

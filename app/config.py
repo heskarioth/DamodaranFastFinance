@@ -30,8 +30,19 @@ class etlSettings(BaseSettings):
     betas : str
     countrytaxrates : str
     taxrate : str
+    mktcaprisk : str
     ref_industry_names : str
     ref_bonds : str
+    psdata : str
+    dollarus : str
+    covideffects : str
+    pedata : str
+    pbvdata : str
+    mktcapmult : str
+    countrystats : str
+    optvar : str
+    eva : str
+    vebitda : str
 
     class Config:
         env_file = "etl.env"

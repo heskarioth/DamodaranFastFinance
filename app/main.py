@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import engine
-#from app.db.etl.etl_main import var
+#from app.db.etl.etl_main import var,main_etl
 from .config import etl_settings
 from .routers import essential as route_essential
 from .routers import quickendpoints as route_quick
