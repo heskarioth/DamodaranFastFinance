@@ -1,5 +1,6 @@
 db.env
-__pycache__
+.pytest_cache
+.pyte
 damo/
 test.py
 ideas.py

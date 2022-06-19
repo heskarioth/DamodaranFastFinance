@@ -1,0 +1,3 @@
+2022-06-19 15:59:58,149:app.utils:quickendpoints:searching for Beta..
+2022-06-19 15:59:58,322:app.utils:quickendpoints:User FAILED calling: get_bottom_up_beta_industry
+requests.exceptions.HTTPError: 404 NOT FOUND: Could not find beta for selected industry group: Retail (Online

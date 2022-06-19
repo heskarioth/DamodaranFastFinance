@@ -1,4 +1,5 @@
 from curses.ascii import isdigit
+from types import NoneType
 from ..db import models
 from fastapi import Body,Response, status,HTTPException, Depends, APIRouter, Query
 from sqlalchemy.orm import Session
@@ -8,9 +9,12 @@ from typing import List, Optional
 from sqlalchemy import func
 from .. import schemas
 from . import docs
+import requests
 import pandas as pd
 import numpy as np
 import yfinance as yf
+from ..utils import logger
+from app.db.etl.jobs.etl_reference_items import f_ref_industry_names
 import re
 # on heroku, if I call PG for bottom_up_beta individual firm. I get duplicated  responses.
 # 2022-02-27T23:19:09.807129+00:00 app[web.1]: inhold
@@ -48,6 +52,9 @@ import re
 # 2022-02-27T23:19:16.072643+00:00 app[web.1]: ref_industry_names
 # 2022-02-27T23:19:16.121705+00:00 app[web.1]: ref_bonds
 
+
+from .utils import transform
+
 router = APIRouter(
     prefix = "/summary"
     ,tags = ["Quick Enpoints"]
@@ -62,7 +69,9 @@ router = APIRouter(
 async def get_bottom_up_beta_industry(industry_group: str, db: Session = Depends(get_db)):
     
     if industry_group.isdigit():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Expecting string value')
+        logger.debug(f'User FAILED calling: {get_bottom_up_beta_industry.__name__}'
+        ,exc_info=requests.HTTPError(f"400 BAD REQUEST: Expecting string value for: {industry_group}"))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Expecting string value.')
 
     betas = db.query(
         models.table_betas.unlevered_beta_corrected_for_cash,
@@ -71,12 +80,15 @@ async def get_bottom_up_beta_industry(industry_group: str, db: Session = Depends
         ).filter(models.table_betas.industry_name==industry_group).first()
     
     if not betas:
+        logger.debug(f'User FAILED calling: {get_bottom_up_beta_industry.__name__}'
+        ,exc_info=requests.HTTPError(f"404 NOT FOUND: Could not find beta for selected industry group: {industry_group}"))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     bottom_up_levered_beta = (betas.unlevered_beta_corrected_for_cash * (1 + ((1- betas.effective_tax_rate_percentage)* betas.debt_to_equity_ratio_percentage)))
-
+    logger.debug(f'User SUCCESSFULLY called: {get_bottom_up_beta_industry.__name__}')
     return {'original_data':betas,'calculated_data':{'bottom_up_levered_beta':bottom_up_levered_beta}}
-    
+
+
 @router.get("/bottom_up_beta/",summary="Find firm bottom up beta for firm(s)")
 async def get_bottom_up_beta_firm(firm_ticker: list[str] | None = Query(None), db: Session = Depends(get_db)):
 #async def get_ctryprem(firm_ticker: str, db: Session = Depends(get_db)):
@@ -84,41 +96,120 @@ async def get_bottom_up_beta_firm(firm_ticker: list[str] | None = Query(None), d
     Similarly to above, we return bottom up beta. This time using firms debt to equity ratio. I have used YahooAPIs to get firm total debt and market cap. <br>
     You can include multiple firms at the same time.
     """
+    if isinstance(firm_ticker,NoneType):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail={'msg':'Include ticker symbol'})
+     
     firm_ticker = list(set(firm_ticker)) #if user inputs two or more times same ticker
     firm_ticker = [firm.upper() for firm in firm_ticker]
-    betas = db.query(
-        models.table_ref_industry_names.ticker,
-        models.table_ref_industry_names.industry_group,
-        models.table_betas.unlevered_beta_corrected_for_cash,
-        models.table_betas.effective_tax_rate_percentage,
-        models.table_betas.debt_to_equity_ratio_percentage,
-        models.table_ref_industry_names.country,
-
-    ).join(
-            models.table_ref_industry_names
-            ,models.table_betas.industry_name==models.table_ref_industry_names.industry_group
-            ).filter(models.table_ref_industry_names.ticker.in_(firm_ticker)).all()
+    df = f_ref_industry_names("")
+    
+    
+    ref_industry_names = df[df['ticker'].isin(firm_ticker)][['company_name','ticker','industry_group','country','industry_group_fk']]
+    industry_groups = ref_industry_names['industry_group'].to_list()
+    db_beta = pd.DataFrame(
+        db.query(
+            models.table_betas.industry_name,
+            models.table_betas.debt_to_equity_ratio_percentage,
+            models.table_betas.effective_tax_rate_percentage,
+            models.table_betas.unlevered_beta_corrected_for_cash,
+        ).all(),columns=["industry_name","debt_to_equity_ratio_percentage","effective_tax_rate_percentage","unlevered_beta_corrected_for_cash"])
+        #.filter(models.table_betas.industry_name.in_(industry_groups))
+        
+    
+    # what we can do instead of querying Yahoo every time is to check 
+    # if we have already that data stored. If it yes, used stored data 
+    # stored data should be no more than 2 weeks old. If not, query Yahoo.
+    # dump data into db and then provide requested info to user.
+    db_beta['industry_group_fk']=db_beta['industry_name'].apply(transform)
+    beta = pd.merge(ref_industry_names,db_beta,left_on="industry_group_fk",right_on="industry_group_fk")
+    beta.drop('industry_group_fk',axis=1,inplace=True)
+    betas = list(beta[[
+        'company_name','ticker','industry_group','unlevered_beta_corrected_for_cash','effective_tax_rate_percentage','debt_to_equity_ratio_percentage','country'
+        ]].itertuples(index=False, name=None))
     if not betas:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Couldn't find tickers requested")
+    
 
+    
+    #print(betas)
     
     # https://stackoverflow.com/questions/51453844/find-value-in-a-list-of-dictionaries-without-iterating
     # turning list of tuples to dict [(val,val,val)] -> {key:(val,val),key:(val,val)}
-    my_dict = {x[0]:x[2:4] for x in betas}
 
+    ### This will merge keys that appear twice or more.
+    # then how does Yahoo Finance query the right company?
+    my_dict = {x[1]:x[2:] for x in betas} 
+    print(my_dict)
+    return
     # this function can be rewritten to check values saved in database and use those if not older than 1 month
     calculated_data = []
     for firm in firm_ticker:
         ticker = yf.Ticker(firm).info
-        total_debt = ticker['totalDebt']
-        total_market_cap =  ticker['marketCap']
-        debt_to_equity =  total_debt / total_market_cap
-        unlevered_beta =  my_dict[firm][0]
-        tax_rate = my_dict[firm][1]
-        bottom_up_levered_beta = unlevered_beta * (1 + ((1-tax_rate)*debt_to_equity))
-        calculated_data.append({'ticker':firm,'total_debt':total_debt,'total_market_cap':total_market_cap,'debt_to_equity':debt_to_equity,'bottom_up_levered_beta':bottom_up_levered_beta})
+        if 'totalDebt' in ticker.keys():
+            total_debt = ticker['totalDebt']
+            total_market_cap =  ticker['marketCap']
+            debt_to_equity =  total_debt / total_market_cap
+            unlevered_beta =  my_dict[firm][0]
+            tax_rate = my_dict[firm][1]
+            bottom_up_levered_beta = unlevered_beta * (1 + ((1-tax_rate)*debt_to_equity))
+            calculated_data.append({'ticker':firm,'total_debt':total_debt,'total_market_cap':total_market_cap,'debt_to_equity':debt_to_equity,'bottom_up_levered_beta':bottom_up_levered_beta})
+        else:
+            continue
+            debt_to_equity =  my_dict[firm][1]
+            unlevered_beta =  my_dict[firm][0]
+            tax_rate = my_dict[firm][1]
+            bottom_up_levered_beta = unlevered_beta * (1 + ((1-tax_rate)*debt_to_equity))
+            calculated_data.append({'ticker':firm,'total_debt':total_debt,'total_market_cap':total_market_cap,'debt_to_equity':debt_to_equity,'bottom_up_levered_beta':bottom_up_levered_beta,'msg':'totalDebt was not available in YahooAPI, used industry average rate'})
+
 
     return {"original_data":betas,"calculated_data":calculated_data}
+
+# Backup function: this used to work when reference data was stored directly to db
+# unfortunately, we have to load it from csv file instead.
+# @router.get("/bottom_up_beta/",summary="Find firm bottom up beta for firm(s)")
+# async def get_bottom_up_beta_firm(firm_ticker: list[str] | None = Query(None), db: Session = Depends(get_db)):
+#     """
+#     Similarly to above, we return bottom up beta. This time using firms debt to equity ratio. I have used YahooAPIs to get firm total debt and market cap. <br>
+#     You can include multiple firms at the same time.
+#     """
+#     firm_ticker = list(set(firm_ticker)) #if user inputs two or more times same ticker
+#     firm_ticker = [firm.upper() for firm in firm_ticker]
+#     betas = db.query(
+#         models.table_ref_industry_names.ticker,
+#         models.table_ref_industry_names.industry_group,
+#         models.table_betas.unlevered_beta_corrected_for_cash,
+#         models.table_betas.effective_tax_rate_percentage,
+#         models.table_betas.debt_to_equity_ratio_percentage,
+#         models.table_ref_industry_names.country,
+
+#     ).join(
+#             models.table_ref_industry_names
+#             ,models.table_betas.industry_name==models.table_ref_industry_names.industry_group
+#             ).filter(models.table_ref_industry_names.ticker.in_(firm_ticker)).all()
+#     if not betas:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Couldn't find tickers requested")
+
+    
+#     # https://stackoverflow.com/questions/51453844/find-value-in-a-list-of-dictionaries-without-iterating
+#     # turning list of tuples to dict [(val,val,val)] -> {key:(val,val),key:(val,val)}
+#     my_dict = {x[0]:x[2:4] for x in betas}
+#     print(betas)
+#     print(my_dict)
+    
+#     # this function can be rewritten to check values saved in database and use those if not older than 1 month
+#     calculated_data = []
+#     for firm in firm_ticker:
+#         ticker = yf.Ticker(firm).info
+#         total_debt = ticker['totalDebt']
+#         total_market_cap =  ticker['marketCap']
+#         debt_to_equity =  total_debt / total_market_cap
+#         unlevered_beta =  my_dict[firm][0]
+#         tax_rate = my_dict[firm][1]
+#         bottom_up_levered_beta = unlevered_beta * (1 + ((1-tax_rate)*debt_to_equity))
+#         calculated_data.append({'ticker':firm,'total_debt':total_debt,'total_market_cap':total_market_cap,'debt_to_equity':debt_to_equity,'bottom_up_levered_beta':bottom_up_levered_beta})
+
+#     return {"original_data":betas,"calculated_data":calculated_data}
+
 
 
 

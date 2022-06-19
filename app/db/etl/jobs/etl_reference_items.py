@@ -9,8 +9,13 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 from pandas import DataFrame
+import re
 
 def f_ref_industry_names(data):
+
+    def transform(x):
+        return re.sub(r'[^\w]','',x.replace(' ','').upper())
+
 
     batch_size = 2000
     urls : List = [f'ref_industry_name/industry_data_{start}.csv' for start in range(0,47606,batch_size)]
@@ -19,8 +24,9 @@ def f_ref_industry_names(data):
 
     df.dropna(subset=['Exchange:Ticker'],inplace=True)
     df['ticker'] = df['Exchange:Ticker'].str.split(':').str[1].str.upper()
+    df['industry_group_fk'] = df['Industry Group'].apply(transform)
     df['created_at'] = datetime.now()
-    df.columns = ['company_name', 'exchange_ticker', 'industry_group', 'primary_sector','sic_code', 'country', 'broad_group', 'sub_group','ticker','created_at']
+    df.columns = ['company_name', 'exchange_ticker', 'industry_group', 'primary_sector','sic_code', 'country', 'broad_group', 'sub_group','ticker','industry_group_fk','created_at']
     return df
 
 
